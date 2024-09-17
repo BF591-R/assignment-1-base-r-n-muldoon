@@ -105,7 +105,11 @@ row_medians <- function(x) {
 #' summarize_rows(m, mean)
 #' [1] 2 5 8
 summarize_rows <- function(x, fn, na.rm=FALSE) {
-    return(apply(x,MARGIN=1,fn))
+    f<-FALSE
+    if(na.rm==TRUE){
+      f<-TRUE
+    }  
+    return(apply(x,MARGIN=1,fn,na.rm=f))
 }
 
 #' Summarize matrix rows into data frame
@@ -144,37 +148,59 @@ summarize_rows <- function(x, fn, na.rm=FALSE) {
 #' 2 -0.01574033 1.026951 -0.04725656 -2.967057 2.571608      112              70      0
 #' 3 -0.09040182 1.027559 -0.02774705 -3.026888 2.353087      130              54      0
 #' 4  0.09518138 1.030461  0.11294781 -3.409049 2.544992       90              72      0
-num_lt_0 <- function(x){
+num_lt_0 <- function(x,na.rm=FALSE){
   #the number of values less than 0
+  if(na.rm==TRUE){
+    x<-rm_na(x)
+  }
+  else{
+    if(num_na(x)>0){
+      return(NA)
+    }
+  }
   nums<-x[x<0]
   return(length(nums))
 }
-num_btw_1_and_5 <-function(x){
+num_btw_1_and_5 <-function(x,na.rm=FALSE){
+  if(na.rm==TRUE){
+    x<-rm_na(x)
+  }
+  else{
+    if(num_na(x)>0){
+      return(NA)
+    }
+  }
   nums<-x[x>1 & x<5]
   return(length(nums))
 }
 
-num_na <-function(x){
-  nums<-x[is.na(x)]
-  return(length(nums))
+num_na <-function(x,na.rm=FALSE){
+  if(na.rm==TRUE){
+    return(0)
+  }
+  else{
+    nums<-x[is.na(x)]
+    return(length(nums))
+  }
+  
 }
 
 summarize_matrix <- function(x,na.rm=FALSE) {
-    f<-FALSE
-    if(na.rm==TRUE){
-      f<-TRUE
-    }
-    df <- data.frame(
-      mean=apply(x,MARGIN=1,mean,na.rm=f),
-      stdev=apply(x,MARGIN=1,sd,na.rm=f),
-      median=apply(x,MARGIN=1,median,na.rm=f),
-      min=apply(x,MARGIN=1,min,na.rm=f),
-      max=apply(x,MARGIN=1,max,na.rm=f),
-      num_lt_0=apply(x,MARGIN=1,num_lt_0),
-      num_btw_1_and_5=apply(x,MARGIN=1,num_btw_1_and_5),
-      num_na=apply(x,MARGIN=1,num_na)
-    )
-    return(df)
+  f<-FALSE
+  if(na.rm==TRUE){
+    f<-TRUE
+  }
+  df <- data.frame(
+    mean=apply(x,MARGIN=1,mean,na.rm=f),
+    stdev=apply(x,MARGIN=1,sd,na.rm=f),
+    median=apply(x,MARGIN=1,median,na.rm=f),
+    min=apply(x,MARGIN=1,min,na.rm=f),
+    max=apply(x,MARGIN=1,max,na.rm=f),
+    num_lt_0=apply(x,MARGIN=1,num_lt_0,na.rm=f),
+    num_btw_1_and_5=apply(x,MARGIN=1,num_btw_1_and_5,na.rm=f),
+    num_na=apply(x,MARGIN=1,num_na,na.rm=f)
+  )
+  return(df)
 }
 
 # ------------ Helper Functions Used By Assignment, You May Ignore ------------
